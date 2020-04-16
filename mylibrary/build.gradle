@@ -1,0 +1,61 @@
+apply plugin: 'com.android.library'
+
+
+android {
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+task makeJar(type: Copy) {
+    //删除存在的jar包,这里打包jar包名字是mylibrary.jar
+    delete 'libs/mylibrary.jar'
+    //设置拷贝的文件 from路径下的文件into到build/libs/路径下，方便找到
+    from('build/intermediates/packaged-classes/debug/')
+    //打进jar包后的文件目录
+    into('libs/')
+    //将classes.jar放入libs/目录下
+    //include ,exclude参数来设置过滤
+    //（我们只关心classes.jar这个文件）
+    include('classes.jar')
+    //重命名Jar
+    rename('classes.jar', 'mylibrary.jar')
+}
+makeJar.dependsOn(build)
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+//    testImplementation 'junit:junit:4.12'
+//    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+}
+
+apply from: 'updateload_bintray.gradle'
